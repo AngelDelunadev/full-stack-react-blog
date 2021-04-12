@@ -1,6 +1,5 @@
 import './App.css';
 import {
-  BrowserRouter as Router,
   NavLink,
   Route,
   Switch,
@@ -20,6 +19,8 @@ import {
 import Menu from '@material-ui/icons/Menu';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from './redux/action';
+import { useEffect } from 'react';
+import Blog from './pages/Blog';
 function App() {
   const user = useSelector((state) => state.user)
   const dispatch = useDispatch()
@@ -31,15 +32,24 @@ function App() {
     .then(data => {
       if (data.success) {
         alert(data.success)
-        dispatch(setUser())
+        dispatch(setUser(null))
         history.push('/login')
       }
     })
   }
 
+  useEffect(()=> {
+    fetch('/api/v1/users/current')
+      .then(res => res.json())
+      .then(data => {
+        if(!data.error){
+          dispatch(setUser(data))
+        }
+      })
+  },[dispatch])
+
   return (
     <div className="App">
-      <Router>
         <AppBar position="static">
           <Toolbar>
             <IconButton edge="start" color="inherit" aria-label="menu">
@@ -81,10 +91,12 @@ function App() {
             <Route path="/register">
               <Register />
             </Route>
+            <Route path = "/blog">
+              <Blog/>
+            </Route>
           </Switch>
         </Container>
 
-      </Router>
     </div>
   );
 }
